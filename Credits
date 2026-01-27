@@ -1,0 +1,128 @@
+## 📥 Download
+
+**[Download Latest Release](https://github.com/Pseki77/Simplicity/releases)**
+
+> Download `Deadshot Client.exe` from the Releases page and run it directly - no installation required!
+
+---
+
+## ✨ Features
+
+### 🎨 Skin Swapper
+- Equip **any skin** for all weapon types (AR, SMG, AWP, Shotgun)
+- Access to 25+ premium skins including exclusive seasonal skins
+- Simple dropdown selection interface
+- Changes apply with a quick reload (Ctrl+R)
+- Persistent skin preferences across sessions
+
+### ⚡ FPS Optimization
+- **Uncap FPS** toggle to disable VSync
+- Performance optimizations for competitive gameplay
+- Low-latency rendering pipeline
+- Reduced input lag
+- Background throttling disabled for consistent performance
+
+### ⌨️ Customizable Interface
+- **Changeable hotkey** for GUI (default: O key)
+- Minimal, distraction-free overlay
+- Dark theme with glassmorphism design
+- Non-intrusive notifications
+
+### 💾 Smart Settings Management
+- Auto-save all preferences
+- Settings stored in user AppData folder
+- Manual editing support via JSON file
+- Import/export configurations (coming soon)
+
+---
+
+## 🎮 How to Use
+
+### First Launch
+1. Download `Deadshot Client.exe` from [Releases](https://github.com/Pseki77/Simplicity/releases)
+2. Run the executable (Windows may show a SmartScreen warning - click \"More info\" → \"Run anyway\")
+3. The client will launch in fullscreen and load deadshot.io
+
+### Opening the Settings GUI
+- Press the **O key** (or your custom hotkey) to toggle the settings overlay
+- The GUI will appear in the center of your screen
+
+### Changing Skins
+1. Press **O** to open the GUI
+2. Select your desired skin from each weapon's dropdown menu
+   - Assault Rifle
+   - SMG
+   - AWP
+   - Shotgun
+3. Press **Ctrl+R** to reload the client
+4. Your selected skins will now be equipped in-game!
+
+### Uncapping FPS
+1. Press **O** to open the GUI
+2. Toggle the **\"Uncap FPS\"** switch at the top
+3. **Fully restart the client** (close and reopen) for changes to take effect
+4. Enjoy smooth, high FPS gameplay!
+
+### Customizing the Toggle Key
+1. Press **O** to open the GUI
+2. Scroll to the bottom
+3. Click the **\"Toggle Key\"** input field
+4. Type any single letter key (e.g., P, L, K)
+5. Changes apply immediately - close the GUI and test your new key!
+
+---
+
+## 🎨 Available Skins
+
+| Category | Skins |
+|----------|-------|
+| **Classic** | Default, Bacon, Fresh Linen |
+| **Camo** | Green Camo, Red Camo, Snow Camo, Safari |
+| **Premium** | Tigris, Carbon Fiber, Royal, Hydrodip |
+| **Vibrant** | Blossom, Gem Stone, Marble, Swirl, Vapor Wave |
+| **Elite** | Astro, Pay Day, Neon, Matrix |
+| **Special** | **Frostbite (Ice)**, Silly, Alez, Horizon, QuaK |
+| **Seasonal** | Winter '22, HLWN '23, Summer '24, 1st Birthday |
+
+*All skins available for all weapon types!*
+
+---
+
+## ⚙️ Settings
+
+### Settings File Location
+Your preferences are automatically saved to:
+```
+%APPDATA%\\deadshot-electron\\settings.json
+```
+
+### Settings File Format
+```json
+{
+  \"toggleKey\": \"o\",
+  \"uncapFPS\": false,
+  \"selectedSkins\": {
+    \"ar\": \"ice\",
+    \"smg\": \"matrix\",
+    \"awp\": \"neon\",
+    \"shotgun\": \"vapor\"
+  }
+}
+```
+
+### Manual Editing
+1. Press `Win + R`
+2. Type: `%APPDATA%\\deadshot-electron`
+3. Open `settings.json` in any text editor
+4. Edit and save
+5. Restart the client to apply changes
+
+---
+
+## 💻 System Requirements
+
+- **OS:** Windows 10/11 (64-bit)
+- **RAM:** 4 GB minimum, 8 GB recommended
+- **Storage:** 300 MB free space
+- **Internet:** Stable connection required
+- **Graphics:** Any modern GPU (dedicated GPU recommended for uncapped FPS)
