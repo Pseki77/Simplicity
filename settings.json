@@ -1,0 +1,10 @@
+{
+  "toggleKey": "o",
+  "uncapFPS": true,
+  "selectedSkins": {
+    "ar": "ice",
+    "smg": "ice",
+    "awp": "matrix",
+    "shotgun": "neon"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "deadshot-electron",
+  "version": "1.0.0",
+  "description": "Low-latency Electron wrapper for deadshot.io",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:dir": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.deadshot.electron",
+    "productName": "Deadshot Client",
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "settings.json",
+      "skin-gui.js",
+      "!node_modules/**/*",
+      "!swap/**/*",
+      "!skin-swapper.js",
+      "!dist/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
