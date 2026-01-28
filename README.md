@@ -67,7 +67,7 @@ Default, Bacon, Fresh Linen, Green Camo, Red Camo, Tigris, Carbon Fiber, Blossom
 
 **GUI not opening?**
 - Check your toggle key in settings.json
-- Default is "Insert" key
+- Default is "O" key
 - Try rebuilding the app
 
 **Build errors?**
@@ -90,6 +90,9 @@ The client includes these optimizations:
 - Disabled renderer backgrounding
 - Disabled frame rate limit
 - Force high performance GPU
+
+## Note (Shotgun skin is showing up as black) :
+Since shotgun came out late in deadshot, some skins may not work for shotgun since they were never made fore it...
 
 ## 📄 License
 
