@@ -1,4 +1,4 @@
-// Available skins from the omniverse client
+// Available skins
 const AVAILABLE_SKINS = {
   "default": "Default",
   "bacon": "Bacon",
@@ -43,6 +43,7 @@ class SkinSwapperGUI {
     // Since we're in browser context, we get settings from window
     this.settings = window.__SKIN_SETTINGS__ || {
       toggleKey: 'o',
+      uncapFPS: false,
       selectedSkins: {
         ar: 'ice',
         smg: 'ice',
@@ -185,11 +186,71 @@ class SkinSwapperGUI {
     keySettingRow.appendChild(keyLabel);
     keySettingRow.appendChild(keyInput);
 
+    // FPS Uncap setting
+    const fpsSettingRow = document.createElement('div');
+    fpsSettingRow.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      margin-top: 10px;
+    `;
+
+    const fpsLabel = document.createElement('label');
+    fpsLabel.textContent = 'Uncap FPS:';
+    fpsLabel.style.cssText = 'font-size: 14px; opacity: 0.9;';
+
+    const fpsToggle = document.createElement('input');
+    fpsToggle.type = 'checkbox';
+    fpsToggle.checked = this.settings.uncapFPS || false;
+    fpsToggle.style.cssText = `
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #4CAF50;
+    `;
+    fpsToggle.addEventListener('change', (e) => {
+      this.settings.uncapFPS = e.target.checked;
+      this.saveSettings();
+      console.log('[Skin GUI] FPS Uncap set to:', e.target.checked);
+      
+      // Show notification that restart is required
+      const restartNotice = document.createElement('div');
+      restartNotice.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 87, 34, 0.95);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      `;
+      restartNotice.textContent = '⚠️ Restart the app to apply FPS changes';
+      document.body.appendChild(restartNotice);
+      
+      setTimeout(() => {
+        restartNotice.style.transition = 'opacity 0.3s';
+        restartNotice.style.opacity = '0';
+        setTimeout(() => restartNotice.remove(), 300);
+      }, 3000);
+    });
+
+    fpsSettingRow.appendChild(fpsLabel);
+    fpsSettingRow.appendChild(fpsToggle);
+
     // Assemble GUI
     this.gui.appendChild(header);
     this.gui.appendChild(notice);
     this.gui.appendChild(selectorsContainer);
     this.gui.appendChild(keySettingRow);
+    this.gui.appendChild(fpsSettingRow);
 
     document.body.appendChild(this.gui);
   }

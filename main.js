@@ -77,8 +77,9 @@ app.whenReady().then(() => {
 
   win.loadURL("https://deadshot.io");
   
-  // Open DevTools in development
-  if (isDev) {
-    win.webContents.openDevTools();
-  }
+  // Open DevTools in development (disabled by default)
+  // Uncomment the lines below if you need DevTools for debugging
+  // if (isDev) {
+  //   win.webContents.openDevTools();
+  // }
 });
