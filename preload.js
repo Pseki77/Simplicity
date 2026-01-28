@@ -30,6 +30,7 @@ console.log('[Simplicity] process.execPath:', process.execPath);
 const defaultSettings = {
   toggleKey: 'o',
   uncapFPS: false,
+  adblock: true,
   selectedSkins: {
     ar: 'ice',
     smg: 'ice',
@@ -41,6 +42,7 @@ const defaultSettings = {
 let selectedSkins = defaultSettings.selectedSkins;
 let toggleKey = defaultSettings.toggleKey;
 let uncapFPS = defaultSettings.uncapFPS;
+let adblock = defaultSettings.adblock;
 
 // Ensure settings file exists
 if (!fs.existsSync(settingsPath)) {
@@ -73,6 +75,10 @@ try {
   if (parsed && typeof parsed.uncapFPS !== 'undefined') {
     uncapFPS = parsed.uncapFPS;
     console.log('[Simplicity] Loaded FPS uncap:', uncapFPS);
+  }
+  if (parsed && typeof parsed.adblock !== 'undefined') {
+    adblock = parsed.adblock;
+    console.log('[Simplicity] Loaded Adblock:', adblock);
   }
 } catch (err) {
   console.error('[Simplicity] Error reading settings:', err);
@@ -162,6 +168,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.__SKIN_SETTINGS__ = {
       toggleKey: ${JSON.stringify(toggleKey)},
       uncapFPS: ${JSON.stringify(uncapFPS)},
+      adblock: ${JSON.stringify(adblock)},
       selectedSkins: ${JSON.stringify(selectedSkins)}
     };
   `;

@@ -44,6 +44,7 @@ class SkinSwapperGUI {
     this.settings = window.__SKIN_SETTINGS__ || {
       toggleKey: 'o',
       uncapFPS: false,
+      adblock: true,
       selectedSkins: {
         ar: 'ice',
         smg: 'ice',
@@ -245,12 +246,72 @@ class SkinSwapperGUI {
     fpsSettingRow.appendChild(fpsLabel);
     fpsSettingRow.appendChild(fpsToggle);
 
+    // Adblock setting
+    const adblockSettingRow = document.createElement('div');
+    adblockSettingRow.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      margin-top: 10px;
+    `;
+
+    const adblockLabel = document.createElement('label');
+    adblockLabel.textContent = 'Adblock:';
+    adblockLabel.style.cssText = 'font-size: 14px; opacity: 0.9;';
+
+    const adblockToggle = document.createElement('input');
+    adblockToggle.type = 'checkbox';
+    adblockToggle.checked = this.settings.adblock !== undefined ? this.settings.adblock : true;
+    adblockToggle.style.cssText = `
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #4CAF50;
+    `;
+    adblockToggle.addEventListener('change', (e) => {
+      this.settings.adblock = e.target.checked;
+      this.saveSettings();
+      console.log('[Skin GUI] Adblock set to:', e.target.checked);
+      
+      // Show notification that restart is required
+      const restartNotice = document.createElement('div');
+      restartNotice.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(76, 175, 80, 0.95);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      `;
+      restartNotice.textContent = '⚠️ Restart the app to apply Adblock changes';
+      document.body.appendChild(restartNotice);
+      
+      setTimeout(() => {
+        restartNotice.style.transition = 'opacity 0.3s';
+        restartNotice.style.opacity = '0';
+        setTimeout(() => restartNotice.remove(), 300);
+      }, 3000);
+    });
+
+    adblockSettingRow.appendChild(adblockLabel);
+    adblockSettingRow.appendChild(adblockToggle);
+
     // Assemble GUI
     this.gui.appendChild(header);
     this.gui.appendChild(notice);
     this.gui.appendChild(selectorsContainer);
     this.gui.appendChild(keySettingRow);
     this.gui.appendChild(fpsSettingRow);
+    this.gui.appendChild(adblockSettingRow);
 
     document.body.appendChild(this.gui);
   }

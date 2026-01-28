@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, session } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -16,6 +16,7 @@ console.log('[Simplicity] Is Dev:', isDev);
 const defaultSettings = {
   toggleKey: 'o',
   uncapFPS: false,
+  adblock: true,
   selectedSkins: {
     ar: 'ice',
     smg: 'ice',
@@ -32,12 +33,15 @@ if (!fs.existsSync(settingsPath)) {
 
 // Load settings to check FPS uncap
 let uncapFPS = false;
+let adblockEnabled = true;
 
 try {
   const settingsData = fs.readFileSync(settingsPath, 'utf8');
   const settings = JSON.parse(settingsData);
   uncapFPS = settings.uncapFPS || false;
+  adblockEnabled = settings.adblock !== undefined ? settings.adblock : true;
   console.log('[Simplicity] FPS Uncap:', uncapFPS);
+  console.log('[Simplicity] Adblock:', adblockEnabled);
 } catch (err) {
   console.error('[Simplicity] Error reading settings for FPS:', err);
 }
@@ -58,7 +62,70 @@ if (uncapFPS) {
 
 let win;
 
+// Ad domains to block
+const adDomains = [
+  'doubleclick.net',
+  'googlesyndication.com',
+  'googleadservices.com',
+  'google-analytics.com',
+  'googletagmanager.com',
+  'googletagservices.com',
+  'adservice.google.com',
+  'pagead2.googlesyndication.com',
+  'tpc.googlesyndication.com',
+  'facebook.com',
+  'facebook.net',
+  'fbcdn.net',
+  'connect.facebook.net',
+  'ad.doubleclick.net',
+  'ads.pubmatic.com',
+  'prebid.org',
+  'serving-sys.com',
+  'rubiconproject.com',
+  'amazon-adsystem.com',
+  'advertising.com',
+  'criteo.com',
+  'outbrain.com',
+  'taboola.com',
+  'media.net',
+  'adnxs.com',
+  'adsrvr.org',
+  'quantserve.com',
+  'scorecardresearch.com',
+  'moatads.com',
+  'adsafeprotected.com',
+  'ads-twitter.com',
+  'analytics.twitter.com',
+  'static.ads-twitter.com',
+  'openx.net',
+  'contextweb.com',
+  'advertising.yahoo.com',
+  'bidswitch.net',
+  'indexww.com',
+  'smartadserver.com',
+  'addthis.com',
+  'sharethis.com'
+];
+
 app.whenReady().then(() => {
+  // Setup adblock filter
+  if (adblockEnabled) {
+    session.defaultSession.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
+      const url = details.url;
+      const shouldBlock = adDomains.some(domain => url.includes(domain));
+      
+      if (shouldBlock) {
+        console.log('[Simplicity] Blocked:', url);
+        callback({ cancel: true });
+      } else {
+        callback({ cancel: false });
+      }
+    });
+    console.log('[Simplicity] Adblock enabled');
+  } else {
+    console.log('[Simplicity] Adblock disabled');
+  }
+
   win = new BrowserWindow({
     fullscreen: true,
     frame: false,
