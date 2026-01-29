@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session } = require("electron");
+const { app, BrowserWindow, session, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -17,6 +17,7 @@ const defaultSettings = {
   toggleKey: 'o',
   uncapFPS: false,
   adblock: true,
+  disableFullscreen: false,
   selectedSkins: {
     ar: 'ice',
     smg: 'ice',
@@ -127,7 +128,9 @@ app.whenReady().then(() => {
   }
 
   win = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: false,
+    width: 1920,
+    height: 1080,
     frame: false,
     backgroundColor: "#000000",
     webPreferences: {
@@ -143,6 +146,23 @@ app.whenReady().then(() => {
   });
 
   win.loadURL("https://deadshot.io");
+  
+  // Window control handlers
+  ipcMain.on('window-minimize', () => {
+    win.minimize();
+  });
+
+  ipcMain.on('window-maximize', () => {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  });
+
+  ipcMain.on('window-close', () => {
+    win.close();
+  });
   
   // Open DevTools in development (disabled by default)
   // Uncomment the lines below if you need DevTools for debugging

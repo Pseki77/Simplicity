@@ -45,6 +45,7 @@ class SkinSwapperGUI {
       toggleKey: 'o',
       uncapFPS: false,
       adblock: true,
+      disableFullscreen: false,
       selectedSkins: {
         ar: 'ice',
         smg: 'ice',
@@ -305,6 +306,65 @@ class SkinSwapperGUI {
     adblockSettingRow.appendChild(adblockLabel);
     adblockSettingRow.appendChild(adblockToggle);
 
+    // Disable Fullscreen setting
+    const fullscreenSettingRow = document.createElement('div');
+    fullscreenSettingRow.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      margin-top: 10px;
+    `;
+
+    const fullscreenLabel = document.createElement('label');
+    fullscreenLabel.textContent = 'Disable Fullscreen:';
+    fullscreenLabel.style.cssText = 'font-size: 14px; opacity: 0.9;';
+
+    const fullscreenToggle = document.createElement('input');
+    fullscreenToggle.type = 'checkbox';
+    fullscreenToggle.checked = this.settings.disableFullscreen !== undefined ? this.settings.disableFullscreen : false;
+    fullscreenToggle.style.cssText = `
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #4CAF50;
+    `;
+    fullscreenToggle.addEventListener('change', (e) => {
+      this.settings.disableFullscreen = e.target.checked;
+      this.saveSettings();
+      console.log('[Skin GUI] Disable Fullscreen set to:', e.target.checked);
+      
+      // Show notification that restart is required
+      const restartNotice = document.createElement('div');
+      restartNotice.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(33, 150, 243, 0.95);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      `;
+      restartNotice.textContent = '⚠️ Restart the app to apply Fullscreen changes';
+      document.body.appendChild(restartNotice);
+      
+      setTimeout(() => {
+        restartNotice.style.transition = 'opacity 0.3s';
+        restartNotice.style.opacity = '0';
+        setTimeout(() => restartNotice.remove(), 300);
+      }, 3000);
+    });
+
+    fullscreenSettingRow.appendChild(fullscreenLabel);
+    fullscreenSettingRow.appendChild(fullscreenToggle);
+
     // Assemble GUI
     this.gui.appendChild(header);
     this.gui.appendChild(notice);
@@ -312,6 +372,7 @@ class SkinSwapperGUI {
     this.gui.appendChild(keySettingRow);
     this.gui.appendChild(fpsSettingRow);
     this.gui.appendChild(adblockSettingRow);
+    this.gui.appendChild(fullscreenSettingRow);
 
     document.body.appendChild(this.gui);
   }

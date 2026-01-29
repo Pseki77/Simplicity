@@ -31,6 +31,7 @@ const defaultSettings = {
   toggleKey: 'o',
   uncapFPS: false,
   adblock: true,
+  disableFullscreen: false,
   selectedSkins: {
     ar: 'ice',
     smg: 'ice',
@@ -43,6 +44,7 @@ let selectedSkins = defaultSettings.selectedSkins;
 let toggleKey = defaultSettings.toggleKey;
 let uncapFPS = defaultSettings.uncapFPS;
 let adblock = defaultSettings.adblock;
+let disableFullscreen = defaultSettings.disableFullscreen;
 
 // Ensure settings file exists
 if (!fs.existsSync(settingsPath)) {
@@ -80,6 +82,10 @@ try {
     adblock = parsed.adblock;
     console.log('[Simplicity] Loaded Adblock:', adblock);
   }
+  if (parsed && typeof parsed.disableFullscreen !== 'undefined') {
+    disableFullscreen = parsed.disableFullscreen;
+    console.log('[Simplicity] Loaded Disable Fullscreen:', disableFullscreen);
+  }
 } catch (err) {
   console.error('[Simplicity] Error reading settings:', err);
 }
@@ -99,12 +105,180 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   getSettingsPath: () => {
     return settingsPath;
-  }
+  },
+  minimizeWindow: () => ipcRenderer.send('window-minimize'),
+  maximizeWindow: () => ipcRenderer.send('window-maximize'),
+  closeWindow: () => ipcRenderer.send('window-close')
 });
 
 // Inject script into page context (needed because of contextIsolation)
 window.addEventListener('DOMContentLoaded', () => {
   console.log('[Simplicity] DOM loaded, injecting skin selector...');
+  
+  // Inject title bar creation script into page context so it has access to electronAPI
+  const titleBarScript = document.createElement('script');
+  titleBarScript.textContent = `
+    (function() {
+      // Wait for page to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createTitleBar);
+      } else {
+        createTitleBar();
+      }
+      
+      function createTitleBar() {
+        // Create custom title bar
+        const titleBar = document.createElement('div');
+        titleBar.id = 'custom-title-bar';
+        titleBar.style.cssText = \`
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 32px;
+          background: transparent;
+          border-bottom: none;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          z-index: 9999999;
+          -webkit-app-region: drag;
+          user-select: none;
+        \`;
+
+        // Title
+        const title = document.createElement('div');
+        title.style.cssText = \`
+          color: #fff;
+          font-size: 13px;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          padding-left: 12px;
+          font-weight: 500;
+        \`;
+        title.textContent = 'Simplicity - deadshot.io';
+
+        // Window controls container
+        const controls = document.createElement('div');
+        controls.style.cssText = \`
+          display: flex;
+          height: 100%;
+          -webkit-app-region: no-drag;
+        \`;
+
+        // Minimize button
+        const minimizeBtn = document.createElement('div');
+        minimizeBtn.innerHTML = '−';
+        minimizeBtn.style.cssText = \`
+          width: 46px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 18px;
+          cursor: pointer;
+          transition: background 0.2s;
+        \`;
+        minimizeBtn.addEventListener('mouseenter', () => {
+          minimizeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        minimizeBtn.addEventListener('mouseleave', () => {
+          minimizeBtn.style.background = 'transparent';
+        });
+        minimizeBtn.addEventListener('click', () => {
+          if (window.electronAPI && window.electronAPI.minimizeWindow) {
+            window.electronAPI.minimizeWindow();
+            console.log('[Simplicity] Minimize clicked');
+          }
+        });
+
+        // Maximize button
+        const maximizeBtn = document.createElement('div');
+        maximizeBtn.innerHTML = '□';
+        maximizeBtn.style.cssText = \`
+          width: 46px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background 0.2s;
+        \`;
+        maximizeBtn.addEventListener('mouseenter', () => {
+          maximizeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        maximizeBtn.addEventListener('mouseleave', () => {
+          maximizeBtn.style.background = 'transparent';
+        });
+        maximizeBtn.addEventListener('click', () => {
+          if (window.electronAPI && window.electronAPI.maximizeWindow) {
+            window.electronAPI.maximizeWindow();
+            console.log('[Simplicity] Maximize clicked');
+          }
+        });
+
+        // Close button
+        const closeBtn = document.createElement('div');
+        closeBtn.innerHTML = '✕';
+        closeBtn.style.cssText = \`
+          width: 46px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background 0.2s;
+        \`;
+        closeBtn.addEventListener('mouseenter', () => {
+          closeBtn.style.background = '#e81123';
+        });
+        closeBtn.addEventListener('mouseleave', () => {
+          closeBtn.style.background = 'transparent';
+        });
+        closeBtn.addEventListener('click', () => {
+          if (window.electronAPI && window.electronAPI.closeWindow) {
+            window.electronAPI.closeWindow();
+            console.log('[Simplicity] Close clicked');
+          }
+        });
+
+        controls.appendChild(minimizeBtn);
+        controls.appendChild(maximizeBtn);
+        controls.appendChild(closeBtn);
+
+        titleBar.appendChild(title);
+        titleBar.appendChild(controls);
+
+        document.body.appendChild(titleBar);
+        
+        // Add CSS - keep title bar as overlay without affecting game layout
+        const style = document.createElement('style');
+        style.textContent = \`
+          #custom-title-bar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 9999999 !important;
+            pointer-events: auto !important;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+        \`;
+        document.head.appendChild(style);
+        
+        console.log('[Simplicity] ✓ Custom title bar created!');
+      }
+    })();
+  `;
+  document.head.appendChild(titleBarScript);
   
   // Inject skin swapper logic
   const script = document.createElement('script');
@@ -169,10 +343,47 @@ window.addEventListener('DOMContentLoaded', () => {
       toggleKey: ${JSON.stringify(toggleKey)},
       uncapFPS: ${JSON.stringify(uncapFPS)},
       adblock: ${JSON.stringify(adblock)},
+      disableFullscreen: ${JSON.stringify(disableFullscreen)},
       selectedSkins: ${JSON.stringify(selectedSkins)}
     };
   `;
   document.head.appendChild(settingsScript);
+  
+  // Inject fullscreen disabler if enabled
+  const fullscreenScript = document.createElement('script');
+  fullscreenScript.textContent = `
+    (function() {
+      if (window.__SKIN_SETTINGS__ && window.__SKIN_SETTINGS__.disableFullscreen) {
+        console.log('[Simplicity] Disabling forced fullscreen...');
+        
+        // Override fullscreen API
+        const noOp = () => Promise.resolve();
+        
+        if (Element.prototype.requestFullscreen) {
+          Element.prototype.requestFullscreen = noOp;
+        }
+        if (Element.prototype.webkitRequestFullscreen) {
+          Element.prototype.webkitRequestFullscreen = noOp;
+        }
+        if (Element.prototype.mozRequestFullScreen) {
+          Element.prototype.mozRequestFullScreen = noOp;
+        }
+        if (Element.prototype.msRequestFullscreen) {
+          Element.prototype.msRequestFullscreen = noOp;
+        }
+        
+        // Block fullscreen events
+        document.addEventListener('fullscreenchange', (e) => {
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+        }, true);
+        
+        console.log('[Simplicity] ✓ Forced fullscreen disabled!');
+      }
+    })();
+  `;
+  document.head.appendChild(fullscreenScript);
   
   // Inject skin GUI - read from file system
   const skinGUIScript = document.createElement('script');
